@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,9 +19,13 @@ import java.io.OutputStreamWriter;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String FILENAME = "content.txt";
+    // Filename ohne Pfadangabe, also direkt im "Homedirectory" der App
+    private final String FILENAME = "testfile.txt";
+
+    // Datenfeld für den zuletzt aus der Datei gelesenen bzw. vom User eingegebenen String
     private String text = "";
 
+    // Datenfelder für die beiden TextViews und das EditText-Field
     private TextView tv1, tv2;
     private EditText ed;
 
@@ -30,30 +35,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tv1 = (TextView) findViewById(R.id.textViewFilename);
+        // Die View-Felder initialisieren
+        tv1 = findViewById(R.id.textViewFilename);
+        tv2 = findViewById(R.id.textViewFileContent);
+        ed = findViewById(R.id.editTextYourText);
+
+        // Den Filenamen und einen vorläufigen Text ausgeben
         tv1.setText(FILENAME);
-
-        tv2 = (TextView) findViewById(R.id.textViewFileContent);
         tv2.setText("not opened yet");
-
-        ed = (EditText) findViewById(R.id.editTextYourText);
     }
 
+    // Eventhandler für den "READ"-Button
     public void onClickReadButton(View v){
         try{
+            // Lies den Inhalt des Files und zeige ihn in tv2 an
             text = readFromFile(FILENAME);
+            tv1.setText(FILENAME);
             tv2.setText(text);
         } catch (IOException e) {
             tv1.setText("Error reading file");
         }
     }
 
+    // Eventhandler für den "WRITE"-Button
     public void onClickWriteButton(View v){
-        String newText =  ed.getText().toString();
-        writeToFile(FILENAME, newText);
+        // Lies den Inhalt des EditText-Fields und schreib ihn in das File
+        text =  ed.getText().toString();
+        writeToFile(FILENAME, text);
     }
 
-
+    // Interne Methode zum Schreiben in eine Datei
     private void writeToFile(String filename, String message)
     {
         try {
@@ -70,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Interne Methode zum Lesen aus der Datei
     private String readFromFile(String filename) throws IOException {
         String result = "";
         InputStream inputStream = openFileInput(filename);
@@ -77,13 +89,13 @@ public class MainActivity extends AppCompatActivity {
         {
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String temp = "";
             StringBuilder stringBuilder = new StringBuilder();
 
+            String temp = "";
             while((temp = bufferedReader.readLine()) != null)
             {
                 stringBuilder.append(temp);
-                stringBuilder.append("\n");
+                stringBuilder.append("|");
             }
 
             inputStream.close();
